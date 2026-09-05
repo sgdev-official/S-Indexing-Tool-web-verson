@@ -11,8 +11,58 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitSpin   = document.getElementById('submit-spinner');
   const submitLabel  = submitBtn.querySelector('.si-btn-label');
   const toastEl      = document.getElementById('si-toast');
+  const targetItems  = document.querySelectorAll('#target-list .si-target-item');
 
   let toastTimer = null;
+
+  /* ---------------------------------------------------------
+     IndexNow — https://www.indexnow.org
+     Fill in INDEXNOW_KEY and host the matching
+     <key>.txt file at your domain root before going live.
+     --------------------------------------------------------- */
+  const INDEXNOW_KEY = ''; // e.g. 'a1b2c3d4e5f6...'
+
+  async function pingIndexNow(targetUrl){
+    if (!INDEXNOW_KEY) return false; // not configured yet — caller simulates instead
+
+    try {
+      const host = new URL(targetUrl).host;
+      const res = await fetch('https://api.indexnow.org/indexnow', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({
+          host,
+          key: INDEXNOW_KEY,
+          keyLocation: `https://${host}/${INDEXNOW_KEY}.txt`,
+          urlList: [targetUrl],
+        }),
+      });
+      return res.ok;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  /* ---------------------------------------------------------
+     Per-engine checklist
+     --------------------------------------------------------- */
+  function resetTargets(){
+    targetItems.forEach(item => item.classList.remove('is-done'));
+  }
+
+  function markTargetDone(name){
+    const item = document.querySelector(`.si-target-item[data-target="${name}"]`);
+    if (item) item.classList.add('is-done');
+  }
+
+  function tick(name, delay){
+    return new Promise(resolve => {
+      setTimeout(() => {
+        markTargetDone(name);
+        resolve();
+      }, delay);
+    });
+  }
 
   /* ---------------------------------------------------------
      Toast
@@ -85,16 +135,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     clearFieldState();
+    resetTargets();
     setSubmitting(true);
 
-    // Simulate a network round-trip to the (not-yet-connected) backend.
-    setTimeout(() => {
+    // Google & Bing indexing APIs require server-side auth, so those two
+    // stay simulated here. IndexNow needs no auth, so it's a real call
+    // once INDEXNOW_KEY above is set — falls back to simulated otherwise.
+    (async () => {
+      await tick('google', 500);
+      await tick('bing', 500);
+
+      const realPing = await pingIndexNow(value);
+      if (!realPing){
+        await tick('indexnow', 400);
+      } else {
+        markTargetDone('indexnow');
+      }
+
       setSubmitting(false);
       feedback.textContent = 'Submitted.';
       feedback.classList.add('is-ok');
       showToast('Queued for indexing.');
       form.reset();
-    }, 900);
+    })();
   });
 
 });
