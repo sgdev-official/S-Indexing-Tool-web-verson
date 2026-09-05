@@ -351,6 +351,42 @@ input:focus-visible{
   box-shadow: 0 0 0 3px var(--ok-soft);
 }
 
+.si-yandex-row{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-top: 1.25rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--border-soft);
+}
+
+.si-yandex-copy{
+  display: flex;
+  flex-direction: column;
+  gap: .15rem;
+  min-width: 200px;
+}
+
+.si-yandex-title{
+  font-size: .86rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.si-yandex-sub{
+  font-size: .78rem;
+  color: var(--text-faint);
+  max-width: 42ch;
+}
+
+#yandex-ping-btn.is-pinged{
+  color: var(--ok);
+  border-color: rgba(47,217,168,0.35);
+  background: var(--ok-soft);
+}
+
 /* =========================================================
    Footer
    ========================================================= */
@@ -447,5 +483,7 @@ input:focus-visible{
   .si-btn-group{ flex-direction: column; align-items: stretch; }
   .si-input-row{ flex-direction: column; }
   .si-btn-primary{ width: 100%; }
+  .si-yandex-row{ flex-direction: column; align-items: stretch; }
+  #yandex-ping-btn{ width: 100%; justify-content: center; }
   .si-footer .container-fluid{ flex-direction: column; gap: .25rem; }
 }
