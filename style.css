@@ -362,6 +362,10 @@ input:focus-visible{
   border-top: 1px solid var(--border-soft);
 }
 
+.si-yandex-row + .si-input-row{
+  margin-top: .75rem;
+}
+
 .si-yandex-copy{
   display: flex;
   flex-direction: column;
@@ -483,7 +487,6 @@ input:focus-visible{
   .si-btn-group{ flex-direction: column; align-items: stretch; }
   .si-input-row{ flex-direction: column; }
   .si-btn-primary{ width: 100%; }
-  .si-yandex-row{ flex-direction: column; align-items: stretch; }
   #yandex-ping-btn{ width: 100%; justify-content: center; }
   .si-footer .container-fluid{ flex-direction: column; gap: .25rem; }
 }
