@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitLabel  = submitBtn.querySelector('.si-btn-label');
   const toastEl      = document.getElementById('si-toast');
   const targetItems  = document.querySelectorAll('#target-list .si-target-item');
+  const yandexBtn    = document.getElementById('yandex-ping-btn');
+  const yandexFeedback = document.getElementById('yandex-feedback');
 
   let toastTimer = null;
 
@@ -41,6 +43,23 @@ document.addEventListener('DOMContentLoaded', () => {
     } catch (err) {
       return false;
     }
+  }
+
+  /* ---------------------------------------------------------
+     Direct Yandex ping — Yandex.Webmaster runs its own
+     IndexNow-compatible endpoint at yandex.com/indexnow, so a
+     single GET fires the ping without going through the
+     shared api.indexnow.org relay above.
+     https://yandex.com/support/webmaster/indexnow/reference.html
+     --------------------------------------------------------- */
+  function buildYandexPingUrl(targetUrl){
+    const host = new URL(targetUrl).host;
+    const params = new URLSearchParams({ url: targetUrl });
+    if (INDEXNOW_KEY){
+      params.set('key', INDEXNOW_KEY);
+      params.set('keyLocation', `https://${host}/${INDEXNOW_KEY}.txt`);
+    }
+    return `https://yandex.com/indexnow?${params.toString()}`;
   }
 
   /* ---------------------------------------------------------
@@ -158,6 +177,34 @@ document.addEventListener('DOMContentLoaded', () => {
       showToast('Queued for indexing.');
       form.reset();
     })();
+  });
+
+  /* ---------------------------------------------------------
+     Force Yandex Ping — fires immediately, independent of
+     the Submit for Indexing queue above.
+     --------------------------------------------------------- */
+  yandexBtn.addEventListener('click', () => {
+    const value = input.value.trim();
+
+    if (!value || !isValidUrl(value)){
+      yandexFeedback.textContent = 'Enter a valid URL above first.';
+      yandexFeedback.classList.remove('is-ok');
+      yandexFeedback.classList.add('is-error');
+      input.focus();
+      return;
+    }
+
+    // A GET request that Yandex's own endpoint accepts — opening it
+    // directly sidesteps the browser CORS restrictions a fetch() would hit.
+    window.open(buildYandexPingUrl(value), '_blank', 'noopener,noreferrer');
+
+    yandexBtn.classList.add('is-pinged');
+    yandexFeedback.textContent = 'Direct ping sent to Yandex.';
+    yandexFeedback.classList.remove('is-error');
+    yandexFeedback.classList.add('is-ok');
+    showToast('Pinged Yandex directly.');
+
+    setTimeout(() => yandexBtn.classList.remove('is-pinged'), 2400);
   });
 
 });
