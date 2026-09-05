@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const toastEl      = document.getElementById('si-toast');
   const targetItems  = document.querySelectorAll('#target-list .si-target-item');
   const yandexBtn    = document.getElementById('yandex-ping-btn');
+  const yandexInput  = document.getElementById('yandex-url');
   const yandexFeedback = document.getElementById('yandex-feedback');
 
   let toastTimer = null;
@@ -127,6 +128,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  yandexInput.addEventListener('input', () => {
+    if (yandexInput.classList.contains('is-invalid') && isValidUrl(yandexInput.value)){
+      yandexInput.classList.remove('is-invalid');
+      yandexFeedback.textContent = '';
+      yandexFeedback.classList.remove('is-error', 'is-ok');
+    }
+  });
+
   /* ---------------------------------------------------------
      Submit handling (dummy — no backend yet)
      --------------------------------------------------------- */
@@ -184,15 +193,18 @@ document.addEventListener('DOMContentLoaded', () => {
      the Submit for Indexing queue above.
      --------------------------------------------------------- */
   yandexBtn.addEventListener('click', () => {
-    const value = input.value.trim();
+    const value = yandexInput.value.trim();
 
     if (!value || !isValidUrl(value)){
       yandexFeedback.textContent = 'Enter a valid URL above first.';
       yandexFeedback.classList.remove('is-ok');
       yandexFeedback.classList.add('is-error');
-      input.focus();
+      yandexInput.classList.add('is-invalid');
+      yandexInput.focus();
       return;
     }
+
+    yandexInput.classList.remove('is-invalid');
 
     // A GET request that Yandex's own endpoint accepts — opening it
     // directly sidesteps the browser CORS restrictions a fetch() would hit.
