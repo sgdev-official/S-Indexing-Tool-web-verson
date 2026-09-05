@@ -262,6 +262,15 @@ input:focus-visible{
   cursor: not-allowed;
 }
 
+.si-step-note{
+  font-size: .82rem;
+  color: var(--text-faint);
+  margin: .9rem 0 0;
+  padding-top: .9rem;
+  border-top: 1px solid var(--border-soft);
+  max-width: 62ch;
+}
+
 /* Form */
 .si-label{
   font-size: .78rem;
@@ -308,6 +317,39 @@ input:focus-visible{
 }
 .si-feedback.is-error{ color: var(--danger); }
 .si-feedback.is-ok{ color: var(--ok); }
+
+.si-target-list{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  list-style: none;
+  margin: 1rem 0 0;
+  padding: 0;
+}
+
+.si-target-item{
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  font-family: var(--font-mono);
+  font-size: .78rem;
+  color: var(--text-faint);
+  transition: color .2s ease;
+}
+
+.si-target-dot{
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--border);
+  transition: background .2s ease, box-shadow .2s ease;
+}
+
+.si-target-item.is-done{ color: var(--text-dim); }
+.si-target-item.is-done .si-target-dot{
+  background: var(--ok);
+  box-shadow: 0 0 0 3px var(--ok-soft);
+}
 
 /* =========================================================
    Footer
@@ -360,6 +402,41 @@ input:focus-visible{
 }
 
 .si-toast.is-error{ border-left-color: var(--danger); }
+
+/* =========================================================
+   404 page
+   ========================================================= */
+.si-404-main{
+  min-height: calc(100vh - 68px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+}
+
+.si-404-code{
+  font-family: var(--font-mono);
+  font-size: 4.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.si-404-title{
+  font-size: 1.4rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin-bottom: .6rem;
+}
+
+.si-404-text{
+  color: var(--text-dim);
+  max-width: 46ch;
+  margin-bottom: 1.75rem;
+}
 
 /* =========================================================
    Responsive
