@@ -51,25 +51,31 @@
       </div>
       <div class="si-step-body">
         <div class="si-card">
-          <h2 class="si-step-title">Verify domain in Google Search Console</h2>
+          <h2 class="si-step-title">Verify domain in Search Console</h2>
           <p class="si-step-text">
             Your property needs to be verified before S-Indexer can request crawls on its behalf.
-            Confirm ownership, then continue to Step 2.
+            Confirm ownership on the engine(s) you use, then continue to Step 2.
           </p>
-          <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer"
-             class="btn si-btn-outline">
-            <i class="bi bi-box-arrow-up-right"></i>
-            Open Search Console
-          </a>
+          <div class="si-btn-group">
+            <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer"
+               class="btn si-btn-outline">
+              <i class="bi bi-box-arrow-up-right"></i>
+              Open Google Search Console
+            </a>
+            <a href="https://www.bing.com/webmasters" target="_blank" rel="noopener noreferrer"
+               class="btn si-btn-outline">
+              <i class="bi bi-box-arrow-up-right"></i>
+              Open Bing Webmaster Tools
+            </a>
+          </div>
         </div>
       </div>
     </section>
 
     <!-- ---------- STEP 2 ---------- -->
-    <section class="si-step" id="step-2">
+    <section class="si-step si-step-last" id="step-2">
       <div class="si-step-rail">
         <span class="si-step-num">2</span>
-        <span class="si-step-line"></span>
       </div>
       <div class="si-step-body">
         <div class="si-card">
@@ -94,35 +100,6 @@
             </div>
             <div class="si-feedback" id="url-feedback"></div>
           </form>
-        </div>
-      </div>
-    </section>
-
-    <!-- ---------- STEP 3 ---------- -->
-    <section class="si-step si-step-last" id="step-3">
-      <div class="si-step-rail">
-        <span class="si-step-num">3</span>
-      </div>
-      <div class="si-step-body">
-        <div class="si-card si-card-feed">
-          <div class="si-feed-head">
-            <div>
-              <h2 class="si-step-title">Live feed &amp; discovery network</h2>
-              <p class="si-step-text mb-0">Recent submissions moving through the rotation nodes.</p>
-            </div>
-            <span class="si-feed-live"><span class="si-live-dot"></span> Live</span>
-          </div>
-
-          <div class="si-feed-table">
-            <div class="si-feed-row si-feed-row-head">
-              <span>Target URL</span>
-              <span>Rotation Node</span>
-              <span>Status</span>
-            </div>
-            <div class="si-feed-list" id="feed-list">
-              <!-- rows injected by script.js, seeded rows below -->
-            </div>
-          </div>
         </div>
       </div>
     </section>
