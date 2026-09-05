@@ -67,7 +67,16 @@
               <i class="bi bi-box-arrow-up-right"></i>
               Open Bing Webmaster Tools
             </a>
+            <a href="https://www.indexnow.org/documentation" target="_blank" rel="noopener noreferrer"
+               class="btn si-btn-outline">
+              <i class="bi bi-box-arrow-up-right"></i>
+              Set Up IndexNow
+            </a>
           </div>
+          <p class="si-step-note">
+            IndexNow needs no console — host a key file on your domain and Bing, Yandex, Seznam.cz and Naver
+            pick up submissions instantly. S-Indexer pings IndexNow automatically on every submit in Step 2.
+          </p>
         </div>
       </div>
     </section>
@@ -80,7 +89,7 @@
       <div class="si-step-body">
         <div class="si-card">
           <h2 class="si-step-title">Submit target URL</h2>
-          <p class="si-step-text">Paste the exact page URL you want queued for indexing.</p>
+          <p class="si-step-text">Paste the exact page URL you want queued for indexing. Submitting pushes it to Google, Bing, and IndexNow together.</p>
 
           <form id="submit-form" action="#" novalidate>
             <label for="target-url" class="form-label si-label">Target URL</label>
@@ -99,6 +108,30 @@
               </button>
             </div>
             <div class="si-feedback" id="url-feedback"></div>
+
+            <ul class="si-target-list" id="target-list">
+              <li class="si-target-item" data-target="google">
+                <span class="si-target-dot"></span> Google
+              </li>
+              <li class="si-target-item" data-target="bing">
+                <span class="si-target-dot"></span> Bing
+              </li>
+              <li class="si-target-item" data-target="indexnow">
+                <span class="si-target-dot"></span> IndexNow
+              </li>
+            </ul>
+
+            <div class="si-yandex-row">
+              <div class="si-yandex-copy">
+                <span class="si-yandex-title">Force Yandex ping</span>
+                <span class="si-yandex-sub">Hits Yandex's IndexNow endpoint directly, right now, outside the queue above.</span>
+              </div>
+              <button type="button" class="btn si-btn-outline" id="yandex-ping-btn">
+                <i class="bi bi-lightning-charge"></i>
+                Force Yandex Ping
+              </button>
+            </div>
+            <div class="si-feedback" id="yandex-feedback"></div>
           </form>
         </div>
       </div>
