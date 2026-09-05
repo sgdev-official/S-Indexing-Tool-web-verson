@@ -92,7 +92,25 @@
           <p class="si-step-text">Paste the exact page URL you want queued for indexing. Submitting pushes it to Google, Bing, and IndexNow together.</p>
 
           <form id="submit-form" action="#" novalidate>
-            <label for="target-url" class="form-label si-label">Target URL</label>
+            <label for="indexnow-key" class="form-label si-label">IndexNow API Key</label>
+            <div class="si-input-row">
+              <input
+                type="text"
+                class="form-control si-input"
+                id="indexnow-key"
+                name="indexnow-key"
+                placeholder="Paste your key, or generate one"
+                autocomplete="off">
+              <button type="button" class="btn si-btn-outline" id="generate-key-btn">
+                <i class="bi bi-key"></i>
+                Generate Key
+              </button>
+            </div>
+            <div class="si-feedback" id="key-feedback">
+              Host this exact string as <code id="key-filename">&lt;key&gt;.txt</code> at your domain root — that's how Bing, Yandex and the rest confirm the request is really from you.
+            </div>
+
+            <label for="target-url" class="form-label si-label si-label-spaced">Target URL</label>
             <div class="si-input-row">
               <input
                 type="text"
