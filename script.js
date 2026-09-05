@@ -4,19 +4,6 @@
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  /* ---------------------------------------------------------
-     Seed data for the live feed
-     --------------------------------------------------------- */
-  const ROTATION_NODES = ['node-eu-3', 'node-us-1', 'node-us-4', 'node-ap-2', 'node-eu-1'];
-
-  const SEED_FEED = [
-    { url: 'https://example.com/blog/launch-notes',        node: 'node-us-1', status: 'processed' },
-    { url: 'https://example.com/pricing',                  node: 'node-eu-1', status: 'processed' },
-    { url: 'https://shop.example.com/products/widget-42',  node: 'node-ap-2', status: 'queued' },
-    { url: 'https://example.com/docs/getting-started',     node: 'node-us-4', status: 'processed' },
-  ];
-
-  const feedListEl   = document.getElementById('feed-list');
   const form         = document.getElementById('submit-form');
   const input        = document.getElementById('target-url');
   const feedback     = document.getElementById('url-feedback');
@@ -26,58 +13,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const toastEl      = document.getElementById('si-toast');
 
   let toastTimer = null;
-
-  /* ---------------------------------------------------------
-     Render helpers
-     --------------------------------------------------------- */
-  function statusChip(status){
-    const isProcessed = status === 'processed';
-    const cls   = isProcessed ? 'si-chip-processed' : 'si-chip-queued';
-    const label = isProcessed ? 'Processed' : 'Queued';
-    return `<span class="si-chip ${cls}">${label}</span>`;
-  }
-
-  function buildRow({ url, node, status }){
-    const row = document.createElement('div');
-    row.className = 'si-feed-row';
-    row.innerHTML = `
-      <span class="si-feed-url" title="${escapeHtml(url)}">${escapeHtml(url)}</span>
-      <span class="si-feed-node">${escapeHtml(node)}</span>
-      ${statusChip(status)}
-    `;
-    return row;
-  }
-
-  function escapeHtml(str){
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-  }
-
-  function renderSeedFeed(){
-    feedListEl.innerHTML = '';
-    if (SEED_FEED.length === 0){
-      const empty = document.createElement('div');
-      empty.className = 'si-feed-empty';
-      empty.textContent = 'No submissions yet. Submit a URL above to see it here.';
-      feedListEl.appendChild(empty);
-      return;
-    }
-    SEED_FEED.forEach(item => feedListEl.appendChild(buildRow(item)));
-  }
-
-  function prependRow(item){
-    const empty = feedListEl.querySelector('.si-feed-empty');
-    if (empty) empty.remove();
-    const row = buildRow(item);
-    feedListEl.prepend(row);
-  }
-
-  function updateRowStatus(row, status){
-    const chip = row.querySelector('.si-chip');
-    if (!chip) return;
-    chip.outerHTML = statusChip(status);
-  }
 
   /* ---------------------------------------------------------
      Toast
@@ -154,31 +89,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Simulate a network round-trip to the (not-yet-connected) backend.
     setTimeout(() => {
-      const node = ROTATION_NODES[Math.floor(Math.random() * ROTATION_NODES.length)];
-      const entry = { url: value, node, status: 'queued' };
-
-      prependRow(entry);
       setSubmitting(false);
-      feedback.textContent = 'Added to the queue.';
+      feedback.textContent = 'Submitted.';
       feedback.classList.add('is-ok');
-      showToast(`Queued for indexing on ${node}`);
-
+      showToast('Queued for indexing.');
       form.reset();
-
-      // Simulate the node picking it up and marking it processed.
-      const rows = feedListEl.querySelectorAll('.si-feed-row');
-      const newRow = rows[0];
-      setTimeout(() => {
-        if (newRow && newRow.isConnected){
-          updateRowStatus(newRow, 'processed');
-        }
-      }, 2600);
-
     }, 900);
   });
 
-  /* ---------------------------------------------------------
-     Init
-     --------------------------------------------------------- */
-  renderSeedFeed();
 });
