@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>S-Indexer — Indexing Console</title>
+
+<!-- Bootstrap 5 -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/css/bootstrap.min.css" rel="stylesheet">
+<!-- Icons -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+<!-- Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- ============ NAVBAR ============ -->
+<nav class="navbar navbar-expand navbar-dark si-navbar sticky-top">
+  <div class="container-fluid px-3 px-md-4">
+    <a class="navbar-brand si-brand" href="#">
+      <span class="si-brand-mark">S</span>
+      <span class="si-brand-text">S-Indexer</span>
+    </a>
+    <div class="d-flex align-items-center gap-3">
+      <span class="si-status-pill">
+        <span class="si-status-dot"></span>
+        System Ready
+      </span>
+    </div>
+  </div>
+</nav>
+
+<!-- ============ MAIN ============ -->
+<main class="container-fluid si-main px-3 px-md-4">
+
+  <div class="si-page-head">
+    <h1 class="si-page-title">Indexing Console</h1>
+    <p class="si-page-sub">Get a URL discovered, crawled, and indexed in three steps.</p>
+  </div>
+
+  <div class="si-workflow">
+
+    <!-- ---------- STEP 1 ---------- -->
+    <section class="si-step" id="step-1">
+      <div class="si-step-rail">
+        <span class="si-step-num">1</span>
+        <span class="si-step-line"></span>
+      </div>
+      <div class="si-step-body">
+        <div class="si-card">
+          <h2 class="si-step-title">Verify domain in Google Search Console</h2>
+          <p class="si-step-text">
+            Your property needs to be verified before S-Indexer can request crawls on its behalf.
+            Confirm ownership, then continue to Step 2.
+          </p>
+          <a href="https://search.google.com/search-console" target="_blank" rel="noopener noreferrer"
+             class="btn si-btn-outline">
+            <i class="bi bi-box-arrow-up-right"></i>
+            Open Search Console
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- STEP 2 ---------- -->
+    <section class="si-step" id="step-2">
+      <div class="si-step-rail">
+        <span class="si-step-num">2</span>
+        <span class="si-step-line"></span>
+      </div>
+      <div class="si-step-body">
+        <div class="si-card">
+          <h2 class="si-step-title">Submit target URL</h2>
+          <p class="si-step-text">Paste the exact page URL you want queued for indexing.</p>
+
+          <form id="submit-form" action="#" novalidate>
+            <label for="target-url" class="form-label si-label">Target URL</label>
+            <div class="si-input-row">
+              <input
+                type="text"
+                class="form-control si-input"
+                id="target-url"
+                name="target-url"
+                placeholder="https://example.com/page-to-index"
+                autocomplete="off"
+                required>
+              <button type="submit" class="btn si-btn-primary" id="submit-btn">
+                <span class="si-btn-label">Submit for Indexing</span>
+                <span class="spinner-border spinner-border-sm d-none" id="submit-spinner" role="status" aria-hidden="true"></span>
+              </button>
+            </div>
+            <div class="si-feedback" id="url-feedback"></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- ---------- STEP 3 ---------- -->
+    <section class="si-step si-step-last" id="step-3">
+      <div class="si-step-rail">
+        <span class="si-step-num">3</span>
+      </div>
+      <div class="si-step-body">
+        <div class="si-card si-card-feed">
+          <div class="si-feed-head">
+            <div>
+              <h2 class="si-step-title">Live feed &amp; discovery network</h2>
+              <p class="si-step-text mb-0">Recent submissions moving through the rotation nodes.</p>
+            </div>
+            <span class="si-feed-live"><span class="si-live-dot"></span> Live</span>
+          </div>
+
+          <div class="si-feed-table">
+            <div class="si-feed-row si-feed-row-head">
+              <span>Target URL</span>
+              <span>Rotation Node</span>
+              <span>Status</span>
+            </div>
+            <div class="si-feed-list" id="feed-list">
+              <!-- rows injected by script.js, seeded rows below -->
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</main>
+
+<footer class="si-footer">
+  <div class="container-fluid px-3 px-md-4">
+    <span>S-Indexer</span>
+    <span class="si-footer-dim">Indexing infrastructure for people who ship pages.</span>
+  </div>
+</footer>
+
+<!-- Toast -->
+<div class="si-toast-wrap">
+  <div id="si-toast" class="si-toast" role="status" aria-live="polite"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
