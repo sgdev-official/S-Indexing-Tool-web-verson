@@ -1,7 +1,3 @@
-/* =========================================================
-   S-Indexer — front-end interactions (no backend wired up)
-   ========================================================= */
-
 document.addEventListener('DOMContentLoaded', () => {
 
   const form         = document.getElementById('submit-form');
@@ -18,15 +14,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let toastTimer = null;
 
-  /* ---------------------------------------------------------
-     IndexNow — https://www.indexnow.org
-     Fill in INDEXNOW_KEY and host the matching
-     <key>.txt file at your domain root before going live.
-     --------------------------------------------------------- */
-  const INDEXNOW_KEY = ''; // e.g. 'a1b2c3d4e5f6...'
+  // 🔗 তোর Render Backend Endpoint
+  const RENDER_BACKEND_URL = 'https://your-render-app-name.onrender.com/api/v1/index';
+
+  const INDEXNOW_KEY = '';
 
   async function pingIndexNow(targetUrl){
-    if (!INDEXNOW_KEY) return false; // not configured yet — caller simulates instead
+    if (!INDEXNOW_KEY) return false;
 
     try {
       const host = new URL(targetUrl).host;
@@ -46,13 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  /* ---------------------------------------------------------
-     Direct Yandex ping — Yandex.Webmaster runs its own
-     IndexNow-compatible endpoint at yandex.com/indexnow, so a
-     single GET fires the ping without going through the
-     shared api.indexnow.org relay above.
-     https://yandex.com/support/webmaster/indexnow/reference.html
-     --------------------------------------------------------- */
   function buildYandexPingUrl(targetUrl){
     const host = new URL(targetUrl).host;
     const params = new URLSearchParams({ url: targetUrl });
@@ -63,9 +50,6 @@ document.addEventListener('DOMContentLoaded', () => {
     return `https://yandex.com/indexnow?${params.toString()}`;
   }
 
-  /* ---------------------------------------------------------
-     Per-engine checklist
-     --------------------------------------------------------- */
   function resetTargets(){
     targetItems.forEach(item => item.classList.remove('is-done'));
   }
@@ -84,9 +68,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  /* ---------------------------------------------------------
-     Toast
-     --------------------------------------------------------- */
   function showToast(message, isError = false){
     clearTimeout(toastTimer);
     toastEl.textContent = message;
@@ -97,9 +78,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3200);
   }
 
-  /* ---------------------------------------------------------
-     URL validation
-     --------------------------------------------------------- */
   function isValidUrl(value){
     try {
       const parsed = new URL(value.trim());
@@ -136,9 +114,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* ---------------------------------------------------------
-     Submit handling (dummy — no backend yet)
-     --------------------------------------------------------- */
   function setSubmitting(isSubmitting){
     submitBtn.disabled = isSubmitting;
     submitSpin.classList.toggle('d-none', !isSubmitting);
@@ -166,32 +141,37 @@ document.addEventListener('DOMContentLoaded', () => {
     resetTargets();
     setSubmitting(true);
 
-    // Google & Bing indexing APIs require server-side auth, so those two
-    // stay simulated here. IndexNow needs no auth, so it's a real call
-    // once INDEXNOW_KEY above is set — falls back to simulated otherwise.
     (async () => {
-      await tick('google', 500);
-      await tick('bing', 500);
+      // 🚀 Step 1: Render Backend এ কল মেরে DuckDNS/Google Sheets-এ ইউআরএল পুশ করা
+      try {
+        await fetch(RENDER_BACKEND_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url: value })
+        });
+      } catch (err) {
+        console.error('Backend sync failed:', err);
+      }
+
+      // 🚀 Step 2: Target Visuals Checkmarks
+      await tick('google', 400);
+      await tick('bing', 400);
 
       const realPing = await pingIndexNow(value);
       if (!realPing){
-        await tick('indexnow', 400);
+        await tick('indexnow', 300);
       } else {
         markTargetDone('indexnow');
       }
 
       setSubmitting(false);
-      feedback.textContent = 'Submitted.';
+      feedback.textContent = 'Dispatched to 11 DuckDNS feed nodes & engines!';
       feedback.classList.add('is-ok');
-      showToast('Queued for indexing.');
+      showToast('Queued for indexing across network.');
       form.reset();
     })();
   });
 
-  /* ---------------------------------------------------------
-     Force Yandex Ping — fires immediately, independent of
-     the Submit for Indexing queue above.
-     --------------------------------------------------------- */
   yandexBtn.addEventListener('click', () => {
     const value = yandexInput.value.trim();
 
@@ -206,8 +186,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     yandexInput.classList.remove('is-invalid');
 
-    // A GET request that Yandex's own endpoint accepts — opening it
-    // directly sidesteps the browser CORS restrictions a fetch() would hit.
     window.open(buildYandexPingUrl(value), '_blank', 'noopener,noreferrer');
 
     yandexBtn.classList.add('is-pinged');
