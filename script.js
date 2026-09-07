@@ -14,8 +14,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let toastTimer = null;
 
-  // 🎯 তোর DuckDNS CDN backend index endpoint সরাসরি বসিয়ে দেওয়া হলো
-  const RENDER_BACKEND_URL = 'https://cdn.sindex.duckdns.org/api/v1/index';
+  // 🎯 v1 ছাড়া পুরো বড় আসল Render URL সরাসরি বসানো হলো
+  const RENDER_BACKEND_URL = 'https://s-indexing-tool-bakend.onrender.com/index';
 
   const INDEXNOW_KEY = '';
 
@@ -144,7 +144,6 @@ document.addEventListener('DOMContentLoaded', () => {
     setSubmitting(true);
 
     (async () => {
-      // 🚀 Step 1: Render Backend (Vercel KV) এ URL পুশ করা
       try {
         await fetch(RENDER_BACKEND_URL, {
           method: 'POST',
@@ -155,7 +154,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Backend sync failed:', err);
       }
 
-      // 🚀 Step 2: Visual Checkmarks Animation
       await tick('google', 300);
       await tick('bing', 300);
 
