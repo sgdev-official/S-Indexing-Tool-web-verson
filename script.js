@@ -1,21 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
 
-  const form         = document.getElementById('submit-form');
-  const input        = document.getElementById('target-url');
-  const feedback     = document.getElementById('url-feedback');
-  const submitBtn    = document.getElementById('submit-btn');
-  const submitSpin   = document.getElementById('submit-spinner');
-  const submitLabel  = submitBtn.querySelector('.si-btn-label');
-  const toastEl      = document.getElementById('si-toast');
-  const targetItems  = document.querySelectorAll('#target-list .si-target-item');
-  const yandexBtn    = document.getElementById('yandex-ping-btn');
-  const yandexInput  = document.getElementById('yandex-url');
+  const form           = document.getElementById('submit-form');
+  const input          = document.getElementById('target-url');
+  const feedback       = document.getElementById('url-feedback');
+  const submitBtn      = document.getElementById('submit-btn');
+  const submitSpin     = document.getElementById('submit-spinner');
+  const submitLabel    = submitBtn.querySelector('.si-btn-label');
+  const toastEl        = document.getElementById('si-toast');
+  const targetItems    = document.querySelectorAll('#target-list .si-target-item');
+  const yandexBtn      = document.getElementById('yandex-ping-btn');
+  const yandexInput    = document.getElementById('yandex-url');
   const yandexFeedback = document.getElementById('yandex-feedback');
 
   let toastTimer = null;
 
-  // 🔗 তোর Render Backend Endpoint
-  const RENDER_BACKEND_URL = 'https://your-render-app-name.onrender.com/api/v1/index';
+  // 🎯 তোর DuckDNS CDN backend index endpoint সরাসরি বসিয়ে দেওয়া হলো
+  const RENDER_BACKEND_URL = 'https://cdn.sindex.duckdns.org/api/v1/index';
 
   const INDEXNOW_KEY = '';
 
@@ -106,18 +106,20 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  yandexInput.addEventListener('input', () => {
-    if (yandexInput.classList.contains('is-invalid') && isValidUrl(yandexInput.value)){
-      yandexInput.classList.remove('is-invalid');
-      yandexFeedback.textContent = '';
-      yandexFeedback.classList.remove('is-error', 'is-ok');
-    }
-  });
+  if (yandexInput) {
+    yandexInput.addEventListener('input', () => {
+      if (yandexInput.classList.contains('is-invalid') && isValidUrl(yandexInput.value)){
+        yandexInput.classList.remove('is-invalid');
+        yandexFeedback.textContent = '';
+        yandexFeedback.classList.remove('is-error', 'is-ok');
+      }
+    });
+  }
 
   function setSubmitting(isSubmitting){
     submitBtn.disabled = isSubmitting;
-    submitSpin.classList.toggle('d-none', !isSubmitting);
-    submitLabel.textContent = isSubmitting ? 'Submitting…' : 'Submit for Indexing';
+    if (submitSpin) submitSpin.classList.toggle('d-none', !isSubmitting);
+    if (submitLabel) submitLabel.textContent = isSubmitting ? 'Submitting…' : 'Submit for Indexing';
   }
 
   form.addEventListener('submit', (event) => {
@@ -142,7 +144,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setSubmitting(true);
 
     (async () => {
-      // 🚀 Step 1: Render Backend এ কল মেরে DuckDNS/Google Sheets-এ ইউআরএল পুশ করা
+      // 🚀 Step 1: Render Backend (Vercel KV) এ URL পুশ করা
       try {
         await fetch(RENDER_BACKEND_URL, {
           method: 'POST',
@@ -153,9 +155,9 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Backend sync failed:', err);
       }
 
-      // 🚀 Step 2: Target Visuals Checkmarks
-      await tick('google', 400);
-      await tick('bing', 400);
+      // 🚀 Step 2: Visual Checkmarks Animation
+      await tick('google', 300);
+      await tick('bing', 300);
 
       const realPing = await pingIndexNow(value);
       if (!realPing){
@@ -165,36 +167,38 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       setSubmitting(false);
-      feedback.textContent = 'Dispatched to 11 DuckDNS feed nodes & engines!';
+      feedback.textContent = 'Dispatched to 11 DuckDNS feed nodes & Vercel KV!';
       feedback.classList.add('is-ok');
       showToast('Queued for indexing across network.');
       form.reset();
     })();
   });
 
-  yandexBtn.addEventListener('click', () => {
-    const value = yandexInput.value.trim();
+  if (yandexBtn) {
+    yandexBtn.addEventListener('click', () => {
+      const value = yandexInput.value.trim();
 
-    if (!value || !isValidUrl(value)){
-      yandexFeedback.textContent = 'Enter a valid URL above first.';
-      yandexFeedback.classList.remove('is-ok');
-      yandexFeedback.classList.add('is-error');
-      yandexInput.classList.add('is-invalid');
-      yandexInput.focus();
-      return;
-    }
+      if (!value || !isValidUrl(value)){
+        yandexFeedback.textContent = 'Enter a valid URL above first.';
+        yandexFeedback.classList.remove('is-ok');
+        yandexFeedback.classList.add('is-error');
+        yandexInput.classList.add('is-invalid');
+        yandexInput.focus();
+        return;
+      }
 
-    yandexInput.classList.remove('is-invalid');
+      yandexInput.classList.remove('is-invalid');
 
-    window.open(buildYandexPingUrl(value), '_blank', 'noopener,noreferrer');
+      window.open(buildYandexPingUrl(value), '_blank', 'noopener,noreferrer');
 
-    yandexBtn.classList.add('is-pinged');
-    yandexFeedback.textContent = 'Direct ping sent to Yandex.';
-    yandexFeedback.classList.remove('is-error');
-    yandexFeedback.classList.add('is-ok');
-    showToast('Pinged Yandex directly.');
+      yandexBtn.classList.add('is-pinged');
+      yandexFeedback.textContent = 'Direct ping sent to Yandex.';
+      yandexFeedback.classList.remove('is-error');
+      yandexFeedback.classList.add('is-ok');
+      showToast('Pinged Yandex directly.');
 
-    setTimeout(() => yandexBtn.classList.remove('is-pinged'), 2400);
-  });
+      setTimeout(() => yandexBtn.classList.remove('is-pinged'), 2400);
+    });
+  }
 
 });
