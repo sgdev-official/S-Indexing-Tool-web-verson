@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 
+  // ---------- HTML Elements Matching ----------
   const form           = document.getElementById('submit-form');
   const input          = document.getElementById('target-url');
   const feedback       = document.getElementById('url-feedback');
@@ -8,23 +9,23 @@ document.addEventListener('DOMContentLoaded', () => {
   const submitLabel    = submitBtn ? submitBtn.querySelector('.si-btn-label') : null;
   const toastEl        = document.getElementById('si-toast');
   const targetItems    = document.querySelectorAll('#target-list .si-target-item');
+
+  // IndexNow Key Elements
+  const indexnowKeyInput = document.getElementById('indexnow-key');
+  const generateKeyBtn   = document.getElementById('generate-key-btn');
+  const keyFeedback      = document.getElementById('key-feedback');
+
+  // Yandex Elements
   const yandexBtn      = document.getElementById('yandex-ping-btn');
   const yandexInput    = document.getElementById('yandex-url');
   const yandexFeedback = document.getElementById('yandex-feedback');
-
-  // 🔑 Key Generator Elements
-  const genKeyBtn      = document.getElementById('gen-key-btn') || document.getElementById('generate-key-btn');
-  const keyDisplay     = document.getElementById('indexnow-key-display') || document.getElementById('key-input');
 
   let toastTimer = null;
 
   // 🎯 Render Backend URL
   const RENDER_BACKEND_URL = 'https://s-indexing-tool-bakend.onrender.com/index';
 
-  // 🔑 IndexNow Dynamic Key Storage
-  let INDEXNOW_KEY = '';
-
-  // 🛠️ 64-character Hex Key Generator
+  // 🛠️ 32-character (Hex) IndexNow Key Generator
   function generateIndexNowKey() {
     const chars = '0123456789abcdef';
     let result = '';
@@ -34,27 +35,22 @@ document.addEventListener('DOMContentLoaded', () => {
     return result;
   }
 
-  // ⚡ Generate Key Button Handler
-  if (genKeyBtn) {
-    genKeyBtn.addEventListener('click', (e) => {
+  // ⚡ Generate Key Button Event
+  if (generateKeyBtn && indexnowKeyInput) {
+    generateKeyBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      INDEXNOW_KEY = generateIndexNowKey();
-      
-      if (keyDisplay) {
-        if (keyDisplay.tagName === 'INPUT' || keyDisplay.tagName === 'TEXTAREA') {
-          keyDisplay.value = INDEXNOW_KEY;
-        } else {
-          keyDisplay.textContent = INDEXNOW_KEY;
-        }
+      const generatedKey = generateIndexNowKey();
+      indexnowKeyInput.value = generatedKey;
+
+      if (keyFeedback) {
+        keyFeedback.innerHTML = `Host this exact string as <code>${generatedKey}.txt</code> at your domain root — that's how Bing, Yandex and the rest confirm the request is really from you.`;
       }
-      
-      showToast('IndexNow Key generated & applied!');
-      console.log('Generated Key:', INDEXNOW_KEY);
+
+      showToast('IndexNow Key generated & set!');
     });
   }
 
-  // 🛠️ URL Normalizer (৪-০-৪ লিঙ্ক বাক ট্র্যাপ ফিক্স)
-  // যদি কোনো লিঙ্কে https:// না থাকে, তবে এটা অটোমেটিক সামনে https:// জুড়ে দেবে
+  // 🛠️ URL Normalizer (অটোমেটিক প্রোটোকল যুক্ত করে Relative 404 Bug ফিক্স করবে)
   function normalizeUrl(rawUrl) {
     let clean = rawUrl.trim();
     if (!clean.startsWith('http://') && !clean.startsWith('https://')) {
@@ -63,11 +59,11 @@ document.addEventListener('DOMContentLoaded', () => {
     return clean;
   }
 
-  // 🚨 STRICT URL VALIDATION
+  // 🚨 Strict Validation Filter
   function isValidUrl(value) {
     const cleanValue = value.trim();
-    
-    // স্রেফ 'https:' বা অসম্পূর্ণ টেক্সট ফিল্টার
+
+    // স্রেফ অসম্পূর্ণ প্রোটোকল টেক্সট ফিল্টার
     if (['http:', 'https:', 'http://', 'https://'].includes(cleanValue.toLowerCase())) {
       return false;
     }
@@ -75,15 +71,16 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const formatted = normalizeUrl(cleanValue);
       const parsed = new URL(formatted);
-      // ডোমেইনে অবশ্যই অন্তত একটি ডট (.) থাকতে হবে (যেমন domain.com)
+      // Hostname-এ অন্তত একটি ডট (.) থাকতে হবে
       return (parsed.protocol === 'http:' || parsed.protocol === 'https:') && parsed.hostname.includes('.');
     } catch (err) {
       return false;
     }
   }
 
-  async function pingIndexNow(targetUrl) {
-    if (!INDEXNOW_KEY) return false;
+  // 🌐 IndexNow Network Dispatcher
+  async function pingIndexNow(targetUrl, key) {
+    if (!key) return false;
 
     try {
       const formattedUrl = normalizeUrl(targetUrl);
@@ -93,8 +90,8 @@ document.addEventListener('DOMContentLoaded', () => {
         headers: { 'Content-Type': 'application/json; charset=utf-8' },
         body: JSON.stringify({
           host,
-          key: INDEXNOW_KEY,
-          keyLocation: `https://${host}/${INDEXNOW_KEY}.txt`,
+          key: key,
+          keyLocation: `https://${host}/${key}.txt`,
           urlList: [formattedUrl],
         }),
       });
@@ -104,13 +101,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  function buildYandexPingUrl(targetUrl) {
+  // ⚡ Build Yandex Direct URL
+  function buildYandexPingUrl(targetUrl, key) {
     const formattedUrl = normalizeUrl(targetUrl);
     const host = new URL(formattedUrl).host;
     const params = new URLSearchParams({ url: formattedUrl });
-    if (INDEXNOW_KEY) {
-      params.set('key', INDEXNOW_KEY);
-      params.set('keyLocation', `https://${host}/${INDEXNOW_KEY}.txt`);
+    if (key) {
+      params.set('key', key);
+      params.set('keyLocation', `https://${host}/${key}.txt`);
     }
     return `https://yandex.com/indexnow?${params.toString()}`;
   }
@@ -186,26 +184,27 @@ document.addEventListener('DOMContentLoaded', () => {
     if (submitLabel) submitLabel.textContent = isSubmitting ? 'Submitting…' : 'Submit for Indexing';
   }
 
-  // 🚀 FORM SUBMIT HANDLER
+  // 🚀 Step 2 Form Submit Handler
   if (form) {
     form.addEventListener('submit', (event) => {
       event.preventDefault();
 
       const rawValue = input.value.trim();
+      const currentKey = indexnowKeyInput ? indexnowKeyInput.value.trim() : '';
 
       if (!rawValue) {
-        setFieldError('Enter a URL before submitting.');
+        setFieldError('Enter a target URL before submitting.');
         input.focus();
         return;
       }
 
       if (!isValidUrl(rawValue)) {
-        setFieldError('Invalid URL! Must be valid domain (e.g. https://domain.com).');
+        setFieldError('Invalid URL! Must be a valid web domain (e.g., https://example.com).');
         input.focus();
         return;
       }
 
-      // 🎯 ফাইনাল ভ্যালিড ও নরম্যালাইজড URL (https:// সহ)
+      // 🎯 নরম্যালাইজড URL প্রস্তুত
       const cleanUrl = normalizeUrl(rawValue);
 
       clearFieldState();
@@ -214,7 +213,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       (async () => {
         try {
-          // ব্যাকএন্ডে পাঠানোর সময় একদম প্রপার https:// ওয়ালা URL যাবে
+          // Render Backend Push
           await fetch(RENDER_BACKEND_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -227,7 +226,7 @@ document.addEventListener('DOMContentLoaded', () => {
         await tick('google', 300);
         await tick('bing', 300);
 
-        const realPing = await pingIndexNow(cleanUrl);
+        const realPing = await pingIndexNow(cleanUrl, currentKey);
         if (!realPing) {
           await tick('indexnow', 300);
         } else {
@@ -236,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         setSubmitting(false);
         if (feedback) {
-          feedback.textContent = 'Dispatched to 11 DuckDNS feed nodes & Vercel KV!';
+          feedback.textContent = 'Dispatched to DuckDNS feed nodes & Vercel KV!';
           feedback.classList.add('is-ok');
         }
         showToast('Queued for indexing across network.');
@@ -245,10 +244,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // 🎯 YANDEX PING HANDLER
+  // 🎯 Yandex Force Ping Button Handler
   if (yandexBtn) {
     yandexBtn.addEventListener('click', () => {
-      const rawValue = yandexInput.value.trim();
+      const rawValue = yandexInput ? yandexInput.value.trim() : '';
+      const currentKey = indexnowKeyInput ? indexnowKeyInput.value.trim() : '';
 
       if (!rawValue || !isValidUrl(rawValue)) {
         if (yandexFeedback) {
@@ -264,7 +264,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const cleanUrl = normalizeUrl(rawValue);
       if (yandexInput) yandexInput.classList.remove('is-invalid');
 
-      window.open(buildYandexPingUrl(cleanUrl), '_blank', 'noopener,noreferrer');
+      // Yandex Ping Endpoint-এ নিউ ট্যাবে হিট পাঠাবে
+      window.open(buildYandexPingUrl(cleanUrl, currentKey), '_blank', 'noopener,noreferrer');
 
       yandexBtn.classList.add('is-pinged');
       if (yandexFeedback) {
