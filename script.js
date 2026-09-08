@@ -12,12 +12,46 @@ document.addEventListener('DOMContentLoaded', () => {
   const yandexInput    = document.getElementById('yandex-url');
   const yandexFeedback = document.getElementById('yandex-feedback');
 
+  // 🔑 Key Generator elements (বাটনের আইডিগুলো অনুযায়ী)
+  const genKeyBtn      = document.getElementById('gen-key-btn') || document.getElementById('generate-key-btn');
+  const keyDisplay     = document.getElementById('indexnow-key-display') || document.getElementById('key-input');
+
   let toastTimer = null;
 
-  // 🎯 v1 ছাড়া পুরো বড় আসল Render URL সরাসরি বসানো হলো
+  // 🎯 Render Backend URL
   const RENDER_BACKEND_URL = 'https://s-indexing-tool-bakend.onrender.com/index';
 
-  const INDEXNOW_KEY = '';
+  // 🔑 ডাইনামিক IndexNow Key Storage
+  let INDEXNOW_KEY = '';
+
+  // 🛠️ random 64-character Hex Key Generator Function
+  function generateIndexNowKey() {
+    const chars = '0123456789abcdef';
+    let result = '';
+    for (let i = 0; i < 32; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result;
+  }
+
+  // ⚡ Key Generation Button Click Handling Fix
+  if (genKeyBtn) {
+    genKeyBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      INDEXNOW_KEY = generateIndexNowKey();
+      
+      if (keyDisplay) {
+        if (keyDisplay.tagName === 'INPUT') {
+          keyDisplay.value = INDEXNOW_KEY;
+        } else {
+          keyDisplay.textContent = INDEXNOW_KEY;
+        }
+      }
+      
+      showToast('IndexNow Key generated & set successfully!');
+      console.log('Generated Key:', INDEXNOW_KEY);
+    });
+  }
 
   async function pingIndexNow(targetUrl){
     if (!INDEXNOW_KEY) return false;
@@ -78,10 +112,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 3200);
   }
 
+  // 🚨 STRICT URL VALIDATION FIX (https: বা অসম্পূর্ণ টেক্সট আটকাবে)
   function isValidUrl(value){
+    const cleanValue = value.trim();
+    
+    // শুধু 'https:' বা অসম্পূর্ণ টেক্সট চেক
+    if (['http:', 'https:', 'http://', 'https://'].includes(cleanValue.toLowerCase())) {
+      return false;
+    }
+
     try {
-      const parsed = new URL(value.trim());
-      return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+      const parsed = new URL(cleanValue);
+      // Host-এ অবশ্যই অন্তত একটা ডট (.) থাকতে হবে (যেমন domain.com)
+      return (parsed.protocol === 'http:' || parsed.protocol === 'https:') && parsed.hostname.includes('.');
     } catch (err) {
       return false;
     }
@@ -134,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     if (!isValidUrl(value)){
-      setFieldError('That doesn\'t look like a valid URL. Include https:// and try again.');
+      setFieldError('Invalid URL! Include full link (e.g. https://domain.com).');
       input.focus();
       return;
     }
